@@ -93,7 +93,7 @@ export class ContentfulService {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
           },
-          timeout: 5000,
+          timeout: 10000, // Aumentado a 10 segundos para evitar timeouts bajo carga
         }),
       );
 
@@ -101,7 +101,6 @@ export class ContentfulService {
     } catch (error) {
       this.logger.error(
         `Contentful health check failed: ${error.message}`,
-        error.stack,
       );
       return false;
     }

@@ -1,0 +1,62 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Prueba específica para verificar el rate limiting
+    # Usando SOLO endpoints de productos (no health check para evitar Contentful timeout)
+
+    # Fase 1: Bajo el límite - No debería haber rate limiting
+    - duration: 10
+      arrivalRate: 1
+      name: "Below rate limit (1 req/s = 60 req/min)"
+
+    # Fase 2: En el límite - Puede empezar a aparecer rate limiting
+    - duration: 10
+      arrivalRate: 2
+      name: "At rate limit threshold (2 req/s = 120 req/min)"
+
+    # Fase 3: Sobre el límite - Definitivamente rate limiting
+    - duration: 10
+      arrivalRate: 5
+      name: "Above rate limit (5 req/s = 300 req/min)"
+
+    # Fase 4: Muy por encima - Rate limiting extremo
+    - duration: 10
+      arrivalRate: 10
+      name: "Well above rate limit (10 req/s = 600 req/min)"
+
+  plugins:
+    expect: {}
+    metrics-by-endpoint:
+      stripQueryString: true
+
+  # Procesador para métricas personalizadas
+  processor: "./artillery-processor.js"
+
+scenarios:
+  # Escenario 1: Listar productos (endpoint público, no llama Contentful directamente)
+  - name: "Get Products - Rate Limit Test"
+    weight: 80
+    flow:
+      - get:
+          url: "/api/v1/products?page=1&limit=5"
+          afterResponse: "countRateLimits"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+  # Escenario 2: Buscar productos por categoría
+  - name: "Get Products by Category"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/v1/products?category=Electronics&limit=5"
+          afterResponse: "countRateLimits"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+# Expectativas
+expect:
+  statusCode: [200, 429]

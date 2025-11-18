@@ -132,7 +132,8 @@ export class ProductsController {
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({
     summary: 'Get product by ID',
-    description: 'Retrieve a single product by its ID. Requires JWT authentication.',
+    description:
+      'Retrieve a single product by its ID. Requires JWT authentication.',
   })
   @ApiParam({
     name: 'id',

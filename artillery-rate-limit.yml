@@ -1,0 +1,54 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Prueba específica para verificar el rate limiting
+    # 100 requests/minuto = ~1.67 requests/segundo
+    # Vamos a enviar 10 requests/segundo para garantizar que se active
+
+    # Fase 1: Bajo el límite - No debería haber rate limiting
+    - duration: 6
+      arrivalRate: 1
+      name: "Below rate limit (1 req/s = 60 req/min)"
+
+    # Fase 2: En el límite - Puede empezar a aparecer rate limiting
+    - duration: 6
+      arrivalRate: 2
+      name: "At rate limit threshold (2 req/s = 120 req/min)"
+
+    # Fase 3: Sobre el límite - Definitivamente rate limiting
+    - duration: 6
+      arrivalRate: 5
+      name: "Above rate limit (5 req/s = 300 req/min)"
+
+    # Fase 4: Muy por encima - Rate limiting extremo
+    - duration: 6
+      arrivalRate: 10
+      name: "Well above rate limit (10 req/s = 600 req/min)"
+
+  plugins:
+    expect: {}
+    metrics-by-endpoint:
+      stripQueryString: true
+
+  # Procesador para métricas personalizadas
+  processor: "./artillery-processor.js"
+
+scenarios:
+  # Escenario simple: Solo health check
+  - name: "Health Check - Rate Limit Test"
+    weight: 100
+    flow:
+      - get:
+          url: "/api/v1/health"
+          afterResponse: "countRateLimits"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+      # Capturar respuesta para análisis
+      - log: "Response received"
+
+# Expectativas
+expect:
+  statusCode: [200, 429]

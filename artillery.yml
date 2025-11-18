@@ -1,0 +1,144 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Fase 1: Calentamiento - 10 usuarios por segundo durante 10 segundos
+    - duration: 10
+      arrivalRate: 10
+      name: "Warm up"
+
+    # Fase 2: Carga normal - 20 usuarios por segundo durante 20 segundos
+    - duration: 20
+      arrivalRate: 20
+      name: "Normal load"
+
+    # Fase 3: Pico de carga - 50 usuarios por segundo durante 10 segundos
+    # Esta fase debería activar el rate limiting (100 req/min = ~1.67 req/seg)
+    - duration: 10
+      arrivalRate: 50
+      name: "Spike - Should trigger rate limiting"
+
+    # Fase 4: Carga extrema - 100 usuarios por segundo durante 5 segundos
+    # Esta fase definitivamente superará el límite
+    - duration: 5
+      arrivalRate: 100
+      name: "Extreme load - Rate limit exceeded"
+
+  # Configuración de plugins para métricas
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+  # Configuración de HTTP
+  http:
+    timeout: 10
+
+  # Variables de entorno
+  variables:
+    apiKey: "apply-digital-secret-key-2024"
+
+  # Procesadores para extraer el token JWT
+  processor: "./artillery-processor.js"
+
+scenarios:
+  # Escenario 1: Probar endpoint público (Health Check)
+  # Peso reducido para evitar sobrecarga de Contentful
+  - name: "Health Check Endpoint"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/v1/health"
+          expect:
+            - statusCode:
+                - 200
+                - 429  # Aceptar tanto respuesta exitosa como rate limit
+                - 503  # Service unavailable si Contentful falla
+
+  # Escenario 2: Probar endpoint público de productos
+  - name: "Get All Products"
+    weight: 50
+    flow:
+      - get:
+          url: "/api/v1/products?page=1&limit=5"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+  # Escenario 3: Probar autenticación + endpoint protegido
+  - name: "Auth and Protected Endpoint"
+    weight: 30
+    flow:
+      # Paso 1: Obtener token JWT
+      - post:
+          url: "/api/v1/auth/token"
+          json:
+            apiKey: "{{ apiKey }}"
+          capture:
+            - json: "$.access_token"
+              as: "token"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+      # Paso 2: Usar token para acceder a reporte protegido
+      - get:
+          url: "/api/v1/reports/deleted-percentage"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          expect:
+            - statusCode:
+                - 200
+                - 401  # Si el token no se capturó por rate limit
+                - 429  # Rate limit
+          ifTrue: "token"  # Solo ejecutar si token fue capturado
+
+  # Escenario 4: Específico para probar rate limiting
+  - name: "Rate Limit Test - Rapid Fire"
+    weight: 20
+    flow:
+      # Hacer 10 requests rápidas para forzar rate limit
+      - loop:
+          - get:
+              url: "/api/v1/health"
+              expect:
+                - statusCode:
+                    - 200
+                    - 429
+        count: 10
+
+  # Escenario 5: Probar diferentes endpoints públicos
+  - name: "Mixed Endpoints"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/v1/products?category=Electronics"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+      - get:
+          url: "/api/v1/products?color=Red&page=1"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+      - get:
+          url: "/api/v1/health"
+          expect:
+            - statusCode:
+                - 200
+                - 429
+
+# Configuración de métricas y reportes
+expect:
+  statusCode: [200, 429, 401]
+
+# Configuración para ver métricas detalladas
+plugins:
+  expect: {}
+  metrics-by-endpoint:
+    # Agrupa métricas por endpoint
+    stripQueryString: true

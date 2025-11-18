@@ -9,7 +9,7 @@ import { AxiosResponse } from 'axios';
 describe('ContentfulService', () => {
   let service: ContentfulService;
   let httpService: HttpService;
-  let configService: ConfigService;
+  let _configService: ConfigService;
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
@@ -44,7 +44,7 @@ describe('ContentfulService', () => {
 
     service = module.get<ContentfulService>(ContentfulService);
     httpService = module.get<HttpService>(HttpService);
-    configService = module.get<ConfigService>(ConfigService);
+    _configService = module.get<ConfigService>(ConfigService);
 
     // Mock logger to suppress console output during tests
     jest.spyOn(Logger.prototype, 'log').mockImplementation();
@@ -347,7 +347,7 @@ describe('ContentfulService', () => {
             content_type: 'product',
             limit: 1,
           },
-          timeout: 5000,
+          timeout: 10000,
         }),
       );
     });

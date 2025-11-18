@@ -1,16 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  HealthCheckService,
-  MongooseHealthIndicator,
-} from '@nestjs/terminus';
+import { HealthCheckService, MongooseHealthIndicator } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
 import { ContentfulHealthIndicator } from './indicators/contentful.health';
 
 describe('HealthController', () => {
   let controller: HealthController;
   let healthCheckService: HealthCheckService;
-  let mongooseHealth: MongooseHealthIndicator;
-  let contentfulHealth: ContentfulHealthIndicator;
+  let _mongooseHealth: MongooseHealthIndicator;
+  let _contentfulHealth: ContentfulHealthIndicator;
 
   const mockHealthCheckService = {
     check: jest.fn(),
@@ -45,10 +42,10 @@ describe('HealthController', () => {
 
     controller = module.get<HealthController>(HealthController);
     healthCheckService = module.get<HealthCheckService>(HealthCheckService);
-    mongooseHealth = module.get<MongooseHealthIndicator>(
+    _mongooseHealth = module.get<MongooseHealthIndicator>(
       MongooseHealthIndicator,
     );
-    contentfulHealth = module.get<ContentfulHealthIndicator>(
+    _contentfulHealth = module.get<ContentfulHealthIndicator>(
       ContentfulHealthIndicator,
     );
 

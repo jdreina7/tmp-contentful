@@ -73,7 +73,9 @@ export class ReportsService {
     const totalNonDeleted = await this.productModel
       .countDocuments({ isDeleted: false })
       .exec();
-    const filteredProducts = await this.productModel.countDocuments(query).exec();
+    const filteredProducts = await this.productModel
+      .countDocuments(query)
+      .exec();
 
     const totalProducts = await this.productModel.countDocuments().exec();
 
