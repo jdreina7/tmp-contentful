@@ -5,7 +5,7 @@
 		"description": "Complete API collection for managing products from Contentful and generating reports",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
 		"_exporter_id": "4921348",
-		"_collection_link": "https://septum-crm.postman.co/workspace/e4f1a7f1-9bfe-4c9a-8041-0de3753b1780/collection/4921348-5944bfab-3392-41a6-90f5-04f2d42ee325?action=share&source=collection_link&creator=4921348"
+		"_collection_link": "https://septum-crm.postman.co/workspace/Septum---CRM-Workspace~e4f1a7f1-9bfe-4c9a-8041-0de3753b1780/collection/4921348-5944bfab-3392-41a6-90f5-04f2d42ee325?action=share&source=collection_link&creator=4921348"
 	},
 	"item": [
 		{
@@ -61,7 +61,10 @@
 					"name": "GET_ONE_PRODUCT",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
 						},
 						"method": "GET",
 						"header": [],
@@ -77,7 +80,7 @@
 						},
 						"method": "DELETE",
 						"header": [],
-						"url": "{{url}}/products/691ab8b4a276435b12c6163e"
+						"url": "{{url}}/products/691b9651d78f3a10c12f38ed"
 					},
 					"response": []
 				},
@@ -85,7 +88,10 @@
 					"name": "POST_SYNC_MANUALLY_PRODUCTS",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
 						},
 						"method": "POST",
 						"header": [],
@@ -106,7 +112,10 @@
 					"name": "TRUNCATE_PRODUCTS",
 					"request": {
 						"auth": {
-							"type": "noauth"
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
 						},
 						"method": "DELETE",
 						"header": [],
@@ -252,45 +261,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "FULL_PRODUCTS_ORIGINAL_ENDPOINT",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer wXfbqDOLix1ksxVH8NcRX1oE4KYytPW-ULqpXCxx3RU"
-					}
-				],
-				"url": {
-					"raw": "https://cdn.contentful.com/spaces/bbd24zg4yngm/environments/master/entries?content_type=product&limit=30",
-					"protocol": "https",
-					"host": [
-						"cdn",
-						"contentful",
-						"com"
-					],
-					"path": [
-						"spaces",
-						"bbd24zg4yngm",
-						"environments",
-						"master",
-						"entries"
-					],
-					"query": [
-						{
-							"key": "content_type",
-							"value": "product"
-						},
-						{
-							"key": "limit",
-							"value": "30"
-						}
-					]
-				}
-			},
-			"response": []
 		}
 	],
 	"auth": {

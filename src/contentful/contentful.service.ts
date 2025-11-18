@@ -99,9 +99,7 @@ export class ContentfulService {
 
       return response.status === 200;
     } catch (error) {
-      this.logger.error(
-        `Contentful health check failed: ${error.message}`,
-      );
+      this.logger.error(`Contentful health check failed: ${error.message}`);
       return false;
     }
   }

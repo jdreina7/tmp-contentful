@@ -31,7 +31,9 @@ export class ContentfulHealthIndicator extends HealthIndicator {
         now - this.healthCheckCache.timestamp < this.CACHE_TTL
       ) {
         const isHealthy = this.healthCheckCache.isHealthy;
-        const cacheAge = Math.floor((now - this.healthCheckCache.timestamp) / 1000);
+        const cacheAge = Math.floor(
+          (now - this.healthCheckCache.timestamp) / 1000,
+        );
 
         const result = this.getStatus(key, isHealthy, {
           message: isHealthy
