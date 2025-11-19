@@ -110,9 +110,7 @@ describe('ProductsService', () => {
         total: 2,
       };
 
-      mockContentfulService.fetchProducts.mockResolvedValue(
-        mockContentfulData,
-      );
+      mockContentfulService.fetchProducts.mockResolvedValue(mockContentfulData);
       mockProductModel.findOneAndUpdate.mockResolvedValue(mockProduct);
 
       const result = await service.syncProductsFromContentful();
@@ -355,9 +353,9 @@ describe('ProductsService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.findOne('507f1f77bcf86cd799439011'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('507f1f77bcf86cd799439011')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -387,9 +385,9 @@ describe('ProductsService', () => {
         exec: jest.fn().mockResolvedValue(null),
       });
 
-      await expect(
-        service.remove('507f1f77bcf86cd799439011'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.remove('507f1f77bcf86cd799439011')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

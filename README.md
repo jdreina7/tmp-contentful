@@ -46,14 +46,19 @@
 ### Security & Quality
 - 🔐 **JWT Authentication**: Secure token-based authentication using API Key exchange
 - 🔐 **Protected Endpoints**: Private reports and sensitive operations require authentication
+- 🛡️ **Rate Limiting**: Multi-tier rate limiting (3/sec, 20/10sec, 100/min) to prevent abuse
+- 🔒 **Helmet Security**: HTTP security headers (XSS, CSRF, Clickjacking protection)
 - ✅ **100% Test Coverage**: Comprehensive unit tests with 93 test cases
 - ✅ **Input Validation**: Global validation pipes with class-validator
 - 📚 **API Documentation**: Interactive Swagger/OpenAPI documentation
+- 📮 **Postman Collection**: Pre-configured API collection for easy testing
 
 ### DevOps & Infrastructure
 - 🐳 **Docker Support**: Full containerization with Docker Compose
 - 🏥 **Health Checks**: MongoDB and Contentful API health monitoring
-- 📝 **Structured Logging**: Comprehensive logging with NestJS Logger
+- 📝 **Structured Logging**: Production-ready logging with Pino (redacts sensitive data)
+- ⚡ **In-Memory Caching**: Fast caching layer for health checks and reports
+- 🚀 **CI/CD Pipeline**: GitHub Actions for automated testing and linting
 - 🎯 **API Versioning**: URI-based versioning (v1)
 
 ---
@@ -63,7 +68,7 @@
 ### Backend Framework
 - **NestJS 11.x** - Progressive Node.js framework
 - **TypeScript 5.7** - Type-safe development
-- **Node.js 20.x** - Runtime environment
+- **Node.js 24.x (LTS)** - Active LTS runtime environment
 
 ### Database & ODM
 - **MongoDB 7.0** - NoSQL database
@@ -72,11 +77,21 @@
 ### Authentication & Security
 - **Passport JWT** - JWT authentication strategy
 - **@nestjs/jwt** - JWT token generation and validation
+- **@nestjs/throttler** - Multi-tier rate limiting and request throttling
+- **Helmet** - Security headers middleware (XSS, CSRF, Clickjacking protection)
 - **class-validator** - Input validation
+
+### Caching & Performance
+- **cache-manager** - In-memory caching layer for improved performance
 
 ### External Integrations
 - **Contentful CMS** - Headless CMS for product data
 - **Axios** - HTTP client for API calls
+
+### Logging & Monitoring
+- **nestjs-pino** - Fast and low overhead logger
+- **pino-http** - HTTP request logging
+- **pino-pretty** - Pretty-print for development
 
 ### Scheduling & Automation
 - **@nestjs/schedule** - Cron job management
@@ -101,7 +116,7 @@
 Before running this project, ensure you have the following installed:
 
 ### Required
-- **Node.js**: v20.x or higher ([Download](https://nodejs.org/))
+- **Node.js**: v24.x or higher ([Download](https://nodejs.org/))
 - **npm**: v10.x or higher (comes with Node.js)
 - **MongoDB**: v7.x ([Download](https://www.mongodb.com/try/download/community)) OR **Docker** (recommended)
 - **Docker** (Optional but recommended): v24.x or higher ([Download](https://www.docker.com/get-started))
@@ -754,6 +769,186 @@ The health endpoint checks:
 
 ```bash
 curl http://localhost:3000/api/v1/health
+```
+
+### Rate Limiting
+
+The API implements global rate limiting to prevent abuse and ensure fair usage:
+
+- **Limit**: 100 requests per minute per IP
+- **Implementation**: `@nestjs/throttler` with global guard
+- **Scope**: Applied to all endpoints automatically
+
+When rate limit is exceeded, the API returns:
+```json
+{
+  "statusCode": 429,
+  "message": "ThrottlerException: Too Many Requests"
+}
+```
+
+**Configuration** (`src/app.module.ts`):
+```typescript
+ThrottlerModule.forRoot([{
+  ttl: 60000,  // 60 seconds
+  limit: 100,  // 100 requests
+}])
+```
+
+### In-Memory Caching
+
+The API uses NestJS built-in caching for improved performance:
+
+**Features:**
+- ⚡ **Fast**: In-memory storage for rapid access
+- 🔄 **Automatic**: Transparently caches health checks and frequently accessed data
+- ⏱️ **Default TTL**: 5 minutes (300 seconds)
+- 📦 **Max Items**: 100 items in cache
+- 🧹 **Auto-cleanup**: Automatically removes expired items
+
+**What gets cached:**
+- **Health checks**: Contentful API status (30 seconds TTL)
+- **Reports**: Analytics data for improved response times
+- **Static data**: Configuration and metadata
+
+**Cache Configuration** (`src/app.module.ts`):
+```typescript
+CacheModule.register({
+  isGlobal: true,
+  ttl: 300000, // 5 minutes
+  max: 100,    // Max 100 items
+})
+```
+
+### Helmet Security
+
+The API implements **Helmet** for comprehensive HTTP security headers:
+
+**Protection Against:**
+- 🛡️ **XSS Attacks**: Cross-Site Scripting prevention
+- 🛡️ **Clickjacking**: X-Frame-Options protection
+- 🛡️ **MIME Sniffing**: X-Content-Type-Options protection
+- 🛡️ **DNS Prefetching**: X-DNS-Prefetch-Control
+- 🛡️ **Download Options**: X-Download-Options
+
+**Security Headers Added:**
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `Strict-Transport-Security` (HSTS)
+- `Content-Security-Policy` (development mode relaxed for Swagger)
+
+**Configuration** (`src/main.ts`):
+```typescript
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production' ? undefined : {...},
+  crossOriginEmbedderPolicy: false, // For Swagger compatibility
+}))
+```
+
+### Structured Logging
+
+The API uses **Pino** for high-performance, structured logging:
+
+**Features:**
+- 🚀 **Fast**: Minimal performance overhead
+- 🔒 **Security**: Automatically redacts sensitive information
+- 🎨 **Pretty Print**: Colored output in development
+- 📊 **Structured**: JSON logs in production
+
+**What gets redacted:**
+- `Authorization` headers
+- `apiKey` in request body
+- Other sensitive fields configured in `app.module.ts`
+
+**Development logs** (pretty-printed):
+```
+[12:34:56] INFO (ProductsService): 🔄 Starting product sync from Contentful...
+[12:34:57] INFO (ProductsService): ✅ Synced 30 products successfully
+```
+
+**Production logs** (JSON):
+```json
+{
+  "level": 30,
+  "time": 1700234567890,
+  "msg": "Synced 30 products successfully",
+  "service": "ProductsService"
+}
+```
+
+**Configuration:**
+- Development: Pretty-printed with colors
+- Production: Structured JSON logs
+- Log levels: debug (dev), info (prod)
+
+### GitHub Actions CI/CD
+
+The project includes a complete CI/CD pipeline that runs on every push and pull request:
+
+**Pipeline Stages:**
+
+1. **Lint** - Code quality checks
+   - Runs ESLint
+   - Checks code formatting with Prettier
+
+2. **Test** - Unit tests
+   - Runs all 93 test cases
+   - Generates coverage reports
+   - Uploads to Codecov (optional)
+
+3. **Build** - Production build
+   - Compiles TypeScript
+   - Validates build artifacts
+   - Uploads dist/ folder
+
+**Workflow file:** `.github/workflows/ci.yml`
+
+**Features:**
+- ✅ Node.js 20.x environment
+- ✅ Dependency caching for faster runs
+- ✅ Parallel job execution
+- ✅ Automatic coverage reporting
+- ✅ Build artifact preservation
+
+**View status:**
+- Check the "Actions" tab in your GitHub repository
+- All checks must pass before merging PRs
+
+### Postman Collection
+
+A comprehensive Postman collection is included for easy API testing:
+
+**Location:** `postman_collection.json`
+
+**Features:**
+- 📋 Complete endpoint coverage (all 14+ endpoints)
+- 🔐 Automatic JWT token management
+- 📁 Organized by modules (Auth, Products, Reports, Health)
+- 🔄 Pre-configured environment variables
+
+**Import Instructions:**
+
+1. Open Postman
+2. Click "Import" button
+3. Select `postman_collection.json`
+4. The collection will be imported with all endpoints
+
+**Environment Variables:**
+- `base_url`: http://localhost:3000
+- `api_key`: apply-digital-secret-key-2024
+- `token`: (auto-populated after authentication)
+
+**Usage:**
+1. Run "Generate JWT Token" request first
+2. Token is automatically saved to environment
+3. All protected endpoints will use the token automatically
+
+**Example workflow:**
+```
+1. Generate JWT Token (saves token automatically)
+2. Test any product endpoint (public)
+3. Test any report endpoint (uses saved token)
 ```
 
 ---

@@ -1,0 +1,311 @@
+{
+	"info": {
+		"_postman_id": "5944bfab-3392-41a6-90f5-04f2d42ee325",
+		"name": "Contentful Products Report API",
+		"description": "Complete API collection for managing products from Contentful and generating reports",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "4921348",
+		"_collection_link": "https://septum-crm.postman.co/workspace/Septum---CRM-Workspace~e4f1a7f1-9bfe-4c9a-8041-0de3753b1780/collection/4921348-5944bfab-3392-41a6-90f5-04f2d42ee325?action=share&source=collection_link&creator=4921348"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "GET_HEALTHCHECK",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/health"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "GET_ALL_PRODUCTS",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/products",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "NH2K",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET_ONE_PRODUCT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/products/691ab458d98e7f93041d7993"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE_ONE_PRODUCT",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{url}}/products/691b9651d78f3a10c12f38ed"
+					},
+					"response": []
+				},
+				{
+					"name": "POST_SYNC_MANUALLY_PRODUCTS",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/products/sync"
+					},
+					"response": []
+				},
+				{
+					"name": "TRUNCATE_PRODUCTS",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "{{url}}/products/truncate"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "AUTH",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"console.log(jsonData);",
+									"pm.environment.set(\"token\", jsonData.access_token);",
+									"console.log(jsonData.token);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"apiKey\": \"apply-digital-secret-key-2024\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{url}}/auth/token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "REPORT_PRODUCTS_DELETED_PERCENTAGE",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/reports/deleted-percentage"
+					},
+					"response": []
+				},
+				{
+					"name": "REPORT_PRODUCTS_BY_CATEGORY",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/reports/by-category"
+					},
+					"response": []
+				},
+				{
+					"name": "REPORT_PRODUCTS_PRICE_DISTRIBUTION",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{url}}/reports/price-distribution"
+					},
+					"response": []
+				},
+				{
+					"name": "REPORT_NON_DELETE_STATS",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "{{token}}"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/reports/non-deleted-stats?hasPrice=true&startDate=2025-01-01&endDate=22025-01-31",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"reports",
+								"non-deleted-stats"
+							],
+							"query": [
+								{
+									"key": "hasPrice",
+									"value": "true"
+								},
+								{
+									"key": "startDate",
+									"value": "2025-01-01"
+								},
+								{
+									"key": "endDate",
+									"value": "22025-01-31"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "{{token}}"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": ""
+		},
+		{
+			"key": "api_key",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": "",
+			"disabled": true
+		}
+	]
+}

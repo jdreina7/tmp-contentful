@@ -1,0 +1,25 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Prueba rápida: 100 VUs enviando 10 requests cada uno
+    - duration: 10
+      arrivalCount: 100
+      name: "Quick load test"
+
+  plugins:
+    expect: {}
+
+scenarios:
+  - name: "Quick Products Test"
+    flow:
+      - loop:
+          - get:
+              url: "/api/v1/products?page=1&limit=5"
+              expect:
+                - statusCode:
+                    - 200
+                    - 429
+        count: 10
+
+expect:
+  statusCode: [200, 429]

@@ -1,10 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Security headers with Helmet
+  app.use(
+    helmet({
+      contentSecurityPolicy:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : {
+              directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+                imgSrc: ["'self'", 'data:', 'https:'],
+              },
+            },
+      crossOriginEmbedderPolicy: false, // Disable for Swagger compatibility
+    }),
+  );
 
   // Enable CORS
   app.enableCors({
@@ -52,9 +71,10 @@ async function bootstrap() {
       },
       'JWT-auth',
     )
-    .addTag('Health', 'Health check endpoints')
-    .addTag('Products', 'Product management endpoints')
-    .addTag('Reports', 'Analytics and reporting endpoints (private)')
+    .addTag('Auth', 'Authentication endpoints - Generate JWT tokens')
+    .addTag('Health', 'Health check endpoints - API and dependencies status')
+    .addTag('Products', 'Product management endpoints - CRUD operations')
+    .addTag('Reports', 'Analytics and reporting endpoints - Protected by JWT')
     .addServer(process.env.API_URL || 'http://localhost:3000', 'Local server')
     .build();
 

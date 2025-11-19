@@ -6,8 +6,8 @@ import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let jwtService: JwtService;
-  let configService: ConfigService;
+  let _jwtService: JwtService;
+  let _configService: ConfigService;
 
   const mockJwtService = {
     sign: jest.fn(),
@@ -33,8 +33,8 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
+    _jwtService = module.get<JwtService>(JwtService);
+    _configService = module.get<ConfigService>(ConfigService);
 
     // Reset mocks
     jest.clearAllMocks();

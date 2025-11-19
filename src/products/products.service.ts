@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, FilterQuery } from 'mongoose';
 import { Product, ProductDocument } from './schemas/product.schema';
@@ -34,8 +29,7 @@ export class ProductsService {
     try {
       this.logger.log('Starting products sync from Contentful...');
 
-      const contentfulData =
-        await this.contentfulService.fetchProducts(30, 0);
+      const contentfulData = await this.contentfulService.fetchProducts(30, 0);
 
       let syncedCount = 0;
 
